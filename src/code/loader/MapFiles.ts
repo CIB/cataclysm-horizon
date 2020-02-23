@@ -1,6 +1,7 @@
 import { pick, values, last } from 'lodash'
 import { loadFileAsJSON } from '../util/FileSystem'
 import * as _ from 'lodash'
+import path from 'path'
 
 /**
  * Class to abstract away access to .map JSON files.
@@ -37,7 +38,7 @@ export class MapFiles {
 
   async uploadFiles(files: string[]) {
     for (let file of files) {
-      const coordinates = (last(file.split('/')) as string).split('.')
+      const coordinates = path.basename(file, '.map').split('.')
       const key = `${coordinates[0]}:${coordinates[1]}`
       if (this.files[key]) {
         this.files[key].push(file)
