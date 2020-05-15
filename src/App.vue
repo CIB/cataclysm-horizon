@@ -1,5 +1,5 @@
 <template>
-  <div id="app" v-on:keyup.f="toggleUI">
+  <div id="app" v-on:keyup.f="toggleUI" v-on:keyup.page-up="goUp" v-on:keyup.page-down="goDown">
     <div id="top-overlay" v-if="!showFileLoader && showUI">
       <div v-if="minimizeUI" @click="toggleMinimizeUI" class="maximize-ui-button">+</div>
       <div v-if="!minimizeUI" class="top-overlay-expanded">
@@ -88,6 +88,15 @@ export default class App extends Vue {
     })
     this.showFileLoader = false
   }
+
+  goUp() {
+    bigBrain.goUp()
+  }
+
+  goDown() {
+    bigBrain.goDown()
+  }
+
   toggleUI() {
     this.showUI = !this.showUI
   }

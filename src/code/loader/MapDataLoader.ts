@@ -45,7 +45,10 @@ export class MapDataLoader {
         terrainList.push(terrainId)
       }
 
-      const height = voxelTileset.height(terrainId)
+      let height = voxelTileset.height(terrainId)
+      if (offsetZ > 0 && height === 0) {
+        height = 0.1
+      }
 
       for (let j = 0; j < count; j++) {
         const y = _.floor(i / 12)

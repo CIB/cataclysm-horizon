@@ -118,7 +118,7 @@ export class BigBrain {
 
     const { x: startingX, y: startingY } = await mapFiles.getStartingPosition()
     await chunkRenderer.load()
-    chunkRenderer.setPosition(startingX, startingY)
+    chunkRenderer.teleport(startingX, startingY)
     await this.updateChunks(chunkRenderer, startingX, startingY)
 
     let lastUpdateX: number = startingX
@@ -141,6 +141,14 @@ export class BigBrain {
 
       if (this.updateInfo) this.updateInfo(renderer.getInfo())
     })
+  }
+
+  public goUp() {
+    chunkRenderer.moveZ(+1)
+  }
+  
+  public goDown() {
+    chunkRenderer.moveZ(-1)
   }
 
   private updateInfo?: (info: RenderInfo) => void

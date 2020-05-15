@@ -36,7 +36,7 @@ export class ChunkRenderer {
 
     const controls = (this.controls = new OrbitControls(camera, canvas))
     controls.enableDamping = true
-    controls.keyPanSpeed = 20
+    controls.keyPanSpeed = 200
     controls.dampingFactor = 0.3
     controls.update()
 
@@ -97,17 +97,31 @@ export class ChunkRenderer {
     }
   }
 
-  public getPosition(): { x: number; y: number } {
-    return { x: this.controls.target.x, y: -this.controls.target.y }
+  public getPosition(): { x: number; y: number, z: number } {
+    return { x: this.controls.target.x, y: -this.controls.target.y, z: this.controls.target.z }
   }
 
-  public setPosition(x: number, y: number): void {
+  public setPosition(x: number, y: number, z: number): void {
+    this.controls.target.x = x
+    this.controls.target.y = -y
+    this.controls.target.z = z
+    this.requestRenderIfNotRequested()
+  }
+
+  public moveZ(z: number) {
+    this.controls.target.z += z;
+    this.camera.position.z += z;
+    this.requestRenderIfNotRequested()
+  }
+
+  public teleport(x: number, y: number) {
     this.controls.target.x = x
     this.controls.target.y = -y
     this.controls.target.z = 0
     this.camera.position.x = x
     this.camera.position.y = -y
     this.camera.position.z = 10
+    this.requestRenderIfNotRequested()
   }
 
   public getInfo(): RenderInfo {
