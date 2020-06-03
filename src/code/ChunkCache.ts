@@ -5,7 +5,7 @@ import {
   buildGeometry,
   GeometryData,
 } from './renderer/MeshBuilder'
-import { ChunkRenderer } from './renderer/ChunkRenderer'
+import { MainRenderer } from './renderer/MainRenderer'
 import { chunkMultiplier, cacheEnabled } from './BigBrain'
 import { mapFiles } from './loader/MapFiles'
 import * as _ from 'lodash'
@@ -73,12 +73,8 @@ export interface Chunk {
 export class ChunkCache {
   public chunks: { [key: string]: Chunk } = {}
 
-  /**
-   * Request a chunk to be rendered. Triggers all the stages unless aborted by
-   * a call to unload.
-   */
-  async loadChunk(
-    renderer: ChunkRenderer,
+  async loadChunkFromDisk(
+    renderer: MainRenderer,
     x: number,
     y: number
   ): Promise<void> {
@@ -135,39 +131,27 @@ export class ChunkCache {
         chunk.empty = true
         return
       }
-      const { objects, texture, textureRows } = await chunkLoader.loadVoxels(
-        submaps
-      )
-      if (!objects.length) {
-        this.finishLoading()
-        chunk.empty = true
-        return
-      }
-      const geometry = buildGeometry(objects, textureRows)
-      chunk.stage = ChunkStage.CACHED
-      chunk.cache = {
-        texture,
-        geometry,
-      }
-      this.finishLoading()
-    }
-    if (chunk.requested && chunk.stage === ChunkStage.CACHED) {
-      this.startLoading()
-      chunk.stage = ChunkStage.PROCESSING
-      const { geometry, texture } = chunk.cache!
-      if (!cacheEnabled) {
-        delete chunk.cache
-      }
-      const [mesh, resources] = await buildMesh(geometry, texture)
-      renderer.addMesh(mesh)
-      chunk.mesh = mesh
-      chunk.resources = resources
-      chunk.stage = ChunkStage.RENDERING
-      this.finishLoading()
+      // await this.loadChunk(renderer, x, y, submaps)
     }
   }
 
-  async unloadChunk(renderer: ChunkRenderer, chunk: Chunk): Promise<void> {
+  /**
+   * Request a chunk to be rendered. Triggers all the stages unless aborted by
+   * a call to unload.
+   */
+  async loadSubmap(renderer: MainRenderer, submap: any) {
+    // const { objects, texture, textureRows } = await chunkLoader.loadVoxels([
+    //   submap,
+    // ])
+    // if (!objects.length) {
+    //   return
+    // }
+    // const geometry = buildGeometry(objects, textureRows)
+    // const [mesh] = await buildMesh(geometry, texture)
+    // renderer.addMesh(mesh)
+  }
+
+  async unloadChunk(renderer: MainRenderer, chunk: Chunk): Promise<void> {
     if (chunk.empty) {
       return
     }

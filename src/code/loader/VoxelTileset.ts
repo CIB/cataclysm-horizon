@@ -34,7 +34,8 @@ export class VoxelTileset {
       't_reinforced_glass',
       't_tree',
       't_column',
-      't_sewage_pipe'
+      't_sewage_pipe',
+      't_rock'
     ]
     if (_.find(whitelist, item => terrain.startsWith(item))) {
       return 1

@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { Texture } from 'three'
-import { Voxel } from '../loader/MapDataLoader'
 
 import * as _ from 'lodash'
+import { RenderObjectTypeUnion, RenderObject, CubeRenderObject } from './RenderTile'
 
 export interface ThreeResource {
   dispose(): void
@@ -15,28 +15,35 @@ export interface GeometryData {
   indices: number[]
 }
 
+export type TextureIndexMap = { [key: string]: number }
+
 export function buildGeometry(
-  meshes: Voxel[],
-  textureRows: number
+  renderObjects: RenderObject[],
+  textureRows: number,
+  textureIndexMap: TextureIndexMap
 ): GeometryData {
   const positions: number[] = []
   const normals: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
 
-  for (let mesh of meshes) {
-    const x = mesh.x
-    const y = mesh.y
-    const z = mesh.z
+  for (let voxel of renderObjects) {
+    const x = voxel.position.x
+    const y = voxel.position.y
+    const z = voxel.position.z
 
-    const uvVoxel = mesh.textureIndex
+    const uvVoxel = textureIndexMap[voxel.sprites()[0]]
     const uvRow = _.floor(uvVoxel / 16)
     const uvCol = uvVoxel % 16
-    const useFaces = mesh.cube ? faces : [faces[2]]
+    let height = 0
+    if (voxel instanceof CubeRenderObject) {
+      height = voxel.height
+    }
+    const useFaces = height > 0 ? faces : [faces[2]]
     for (const { dir, corners } of useFaces) {
       const ndx = positions.length / 3
       for (const { pos, uv } of corners) {
-        positions.push(pos[0] + x, pos[1] - y, (pos[2] * mesh.height + z) * 2.5)
+        positions.push(pos[0] + x, pos[1] - y, (pos[2] * height + z) * 2.5)
         normals.push(...dir)
         uvs.push((uvCol + uv[0]) / 16, 1 - (uvRow + uv[1]) / textureRows)
       }

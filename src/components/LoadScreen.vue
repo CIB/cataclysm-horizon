@@ -6,7 +6,7 @@
       <span class="start-button-row">
         <button
           @click="$emit('start', preset, cache)"
-          :disabled="!tilesetLoaded || mapFilesLoaded <= 0"
+          :disabled="!tilesetLoaded"
           class="start-button"
         >Start</button>
         <select
@@ -76,13 +76,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { chunkRenderer } from './../code/renderer/ChunkRenderer'
+import { mainRenderer } from './../code/renderer/MainRenderer'
 
 import { tilesetParser } from '../code/loader/TilesetParser'
 import { mapFiles } from '../code/loader/MapFiles'
 import { bigBrain } from '../code/BigBrain'
 import { chunkCache } from '../code/ChunkCache'
-import { RenderInfo } from '../code/renderer/ChunkRenderer'
+import { RenderInfo } from '../code/renderer/MainRenderer'
 import {
   selectDirectory,
   selectDirectories,

@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { chunkRenderer } from './../code/renderer/ChunkRenderer'
+import { mainRenderer } from './../code/renderer/MainRenderer'
 
 @Component
 export default class Renderer extends Vue {
@@ -14,7 +14,7 @@ export default class Renderer extends Vue {
     const canvas = document.querySelector(
       '#rendererCanvas'
     ) as HTMLCanvasElement
-    chunkRenderer.attach(canvas)
+    mainRenderer.load(canvas)
   }
 }
 </script>

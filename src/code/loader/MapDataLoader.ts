@@ -2,12 +2,12 @@ import * as _ from 'lodash'
 import { SpriteMap } from './TilesetParser'
 import { voxelTileset } from './VoxelTileset'
 
-export interface Voxel {
+export interface PreVoxel {
   x: number
   y: number
   z: number
   height: number
-  textureIndex: number
+  sprite: string
   cube: boolean
 }
 
@@ -15,12 +15,12 @@ export class MapDataLoader {
   private async loadSubmap(
     json: any,
     spriteMap: SpriteMap,
-    terrainList: string[],
-    terrainIndexMap: { [key: string]: number },
+    // terrainList: string[],
+    // terrainIndexMap: { [key: string]: number },
     baseX: number,
     baseY: number,
-    objects: Voxel[]
-  ): Promise<Voxel[]> {
+    objects: PreVoxel[]
+  ): Promise<void> {
     const offsetX: number = json.coordinates[0] - baseX
     const offsetY: number = json.coordinates[1] - baseY
     let offsetZ: number = json.coordinates[2]
@@ -38,12 +38,12 @@ export class MapDataLoader {
         i += count
         continue
       }
-      let textureIndex = terrainIndexMap[terrainId]
-      if (textureIndex === undefined) {
-        textureIndex = terrainList.length
-        terrainIndexMap[terrainId] = textureIndex
-        terrainList.push(terrainId)
-      }
+      // let textureIndex = terrainIndexMap[terrainId]
+      // if (textureIndex === undefined) {
+      //   textureIndex = terrainList.length
+      //   terrainIndexMap[terrainId] = textureIndex
+      //   terrainList.push(terrainId)
+      // }
 
       let height = voxelTileset.height(terrainId)
       if (offsetZ > 0 && height === 0) {
@@ -57,14 +57,13 @@ export class MapDataLoader {
           x: x + offsetX * 12,
           y: y + offsetY * 12,
           z: offsetZ * 1.001,
-          textureIndex: textureIndex,
+          sprite: spriteMap[terrainId],
           cube: height > 0,
           height: height,
         })
         i++
       }
     }
-    return objects
   }
 
   async loadSubmapsFromJSON(
@@ -74,20 +73,20 @@ export class MapDataLoader {
     terrainIndexMap: { [key: string]: number },
     baseX: number,
     baseY: number
-  ): Promise<Voxel[]> {
-    let objects: Voxel[] = []
+  ): Promise<any[]> {
+    let objects: any[] = []
 
-    for (let submap of submaps) {
-      await this.loadSubmap(
-        submap,
-        spriteMap,
-        terrainList,
-        terrainIndexMap,
-        baseX,
-        baseY,
-        objects
-      )
-    }
+    // for (let submap of submaps) {
+    //   await this.loadSubmap(
+    //     submap,
+    //     spriteMap,
+    //     terrainList,
+    //     terrainIndexMap,
+    //     baseX,
+    //     baseY,
+    //     objects
+    //   )
+    // }
 
     return objects
   }

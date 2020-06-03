@@ -11,26 +11,25 @@ function loadImage(dataUrl: string): Promise<HTMLImageElement> {
 }
 
 export async function buildTexture(
-  terrainList: string[],
-  spriteMap: SpriteMap,
+  spriteList: string[],
   spriteWidth: number,
   spriteHeight: number
 ): Promise<[string, number]> {
-  let terrainRows = _.chunk(terrainList, 16)
+  let spriteRows = _.chunk(spriteList, 16)
 
   const canvas = document.createElement('canvas')
   canvas.width = spriteWidth * 16
-  canvas.height = spriteHeight * terrainRows.length
+  canvas.height = spriteHeight * spriteRows.length
   var context = canvas.getContext('2d') as CanvasRenderingContext2D
 
-  for (let row = 0; row < terrainRows.length; row++) {
-    const terrainRow = terrainRows[row]
-    for (let column = 0; column < terrainRow.length; column++) {
-      const terrainId = terrainRow[column]
-      const imageData = await loadImage(spriteMap[terrainId])
+  for (let row = 0; row < spriteRows.length; row++) {
+    const spriteRow = spriteRows[row]
+    for (let column = 0; column < spriteRow.length; column++) {
+      const sprite = spriteRow[column]
+      const imageData = await loadImage(sprite)
       context.drawImage(imageData, column * spriteWidth, row * spriteHeight)
     }
   }
 
-  return [canvas.toDataURL(), terrainRows.length]
+  return [canvas.toDataURL(), spriteRows.length]
 }

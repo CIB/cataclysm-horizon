@@ -51,7 +51,7 @@ import { tilesetParser } from './code/loader/TilesetParser'
 import { mapFiles } from './code/loader/MapFiles'
 import { bigBrain } from './code/BigBrain'
 import { chunkCache } from './code/ChunkCache'
-import { RenderInfo } from './code/renderer/ChunkRenderer'
+import { RenderInfo } from './code/renderer/MainRenderer'
 import {
   selectDirectory,
   selectDirectories,
@@ -81,7 +81,6 @@ export default class App extends Vue {
       this.progressCurrent = doneLoading
       this.progressMax = loading
     })
-    bigBrain.load(preset, cache)
     bigBrain.onUpdateInfo((renderInfo: RenderInfo) => {
       this.fps = Math.round(1000 / renderInfo.frameDuration)
       this.triangles = renderInfo.triangles

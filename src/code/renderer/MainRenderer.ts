@@ -1,28 +1,26 @@
 import * as THREE from 'three'
 import * as _ from 'lodash'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Vector3 } from 'three'
 
 export interface RenderInfo {
   triangles: number
   frameDuration: number
 }
 
-export class ChunkRenderer {
+export class MainRenderer {
   private canvas: HTMLCanvasElement = null as any
   private renderer: THREE.WebGLRenderer = null as any
   private camera: THREE.PerspectiveCamera = null as any
   private controls: OrbitControls = null as any
   private scene: THREE.Scene = null as any
-  private onRenderTick?: (renderer: ChunkRenderer) => Promise<void>
+  private onRenderTick?: (renderer: MainRenderer) => Promise<void>
   private renderRequested: undefined | true
   private frameDurations: number[] = []
 
-  public attach(canvas: HTMLCanvasElement) {
+  public async load(canvas: HTMLCanvasElement) {
     this.canvas = canvas
-  }
-
-  public async load() {
-    const canvas = this.canvas
+    console.log('canvas', canvas)
     const renderer = (this.renderer = new THREE.WebGLRenderer({ canvas }))
     renderer.setPixelRatio(2)
 
@@ -115,12 +113,18 @@ export class ChunkRenderer {
   }
 
   public teleport(x: number, y: number) {
+    const movedX = x - this.controls.target.x
+    const movedY = -y - this.controls.target.y
     this.controls.target.x = x
     this.controls.target.y = -y
     this.controls.target.z = 0
-    this.camera.position.x = x
-    this.camera.position.y = -y
-    this.camera.position.z = 10
+    this.camera.position.x += movedX
+    this.camera.position.y += movedY
+    if (!this.camera.position.z) {
+      this.camera.position.z = 10
+    }
+
+    console.log('target', this.controls.target, this.camera.position)
     this.requestRenderIfNotRequested()
   }
 
@@ -131,7 +135,7 @@ export class ChunkRenderer {
     }
   }
 
-  public onTick(callback: (renderer: ChunkRenderer) => Promise<void>) {
+  public onTick(callback: (renderer: MainRenderer) => Promise<void>) {
     this.onRenderTick = callback
   }
 
@@ -145,4 +149,4 @@ export class ChunkRenderer {
   }
 }
 
-export const chunkRenderer = new ChunkRenderer()
+export const mainRenderer = new MainRenderer()
