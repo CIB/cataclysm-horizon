@@ -191,13 +191,13 @@ let main = async () => {
     )
     console.log('dfVersion', dfVersion.value);
     const blockRequest = {
-        blocksNeeded: 20,
-        minX: 100,
-        maxX: 110,
-        minY: 80,
-        maxY: 100,
-        minZ: 0,
-        maxZ: 160,
+        blocksNeeded: 100,
+        minX: 5,
+        maxX: 6,
+        minY: 5,
+        maxY: 6,
+        minZ: 158,
+        maxZ: 159,
     }
     const resetHashReply = await callRPC<void, void>(
         'ResetMapHashes',
