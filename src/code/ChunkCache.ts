@@ -10,10 +10,11 @@ import { chunkMultiplier, cacheEnabled } from './BigBrain'
 import { mapFiles } from './loader/MapFiles'
 import * as _ from 'lodash'
 import { MAP_SYNCHRONIZER, BLOCK_WIDTH } from './game/MapSynchronizer'
-import { Vector3 } from 'three'
+import * as THREE from 'three'
 import { MapBlock } from './game/DfHack'
-import { Voxel } from './loader/MapDataLoader'
+import { Voxel, VoxelBase } from './loader/MapDataLoader'
 import { flatten } from 'lodash'
+import { buildTexture } from './loader/TextureBuilder'
 
 export enum ChunkStage {
   UNLOADED,
@@ -88,6 +89,7 @@ export class ChunkCache {
     y: number,
     z: number
   ): Promise<void> {
+    console.log('chunk', x, y, z)
     let chunk: Chunk = this.chunks[`${x}:${y}:${z}`]
     if (!chunk) {
       chunk = {
@@ -132,7 +134,7 @@ export class ChunkCache {
       let blocks: MapBlock[] = []
       for (const coordinate of mapCoordinates) {
         const block = MAP_SYNCHRONIZER.getBlock(
-          new Vector3(coordinate.x, coordinate.y, z)
+          new THREE.Vector3(coordinate.x, coordinate.y, z)
         )
         if (block) {
           blocks.push(block)
@@ -152,21 +154,30 @@ export class ChunkCache {
       //   return
       // }
 
-      console.log('blocks', blocks)
       const objects = flatten(
         blocks.map(block => {
           let x = 0,
             y = 0
-          const voxels: Voxel[] = []
+          const voxels: VoxelBase[] = []
           for (let mat of block.baseMaterials) {
-            voxels.push({
-              cube: true,
-              height: 1,
-              x: block.mapX + x,
-              y: block.mapY + y,
-              z: block.mapZ + z,
-              textureIndex: MAP_SYNCHRONIZER.getMaterial(mat).tile,
-            })
+            const matdef = MAP_SYNCHRONIZER.getMaterial(mat)
+            if (matdef) {
+              voxels.push({
+                cube: true,
+                height: 1,
+                x: block.mapX + x,
+                y: block.mapY + y,
+                z: block.mapZ,
+                color: matdef.stateColor
+                  ? `#${new THREE.Color(
+                      matdef.stateColor.red,
+                      matdef.stateColor.red,
+                      matdef.stateColor.green
+                    ).getHexString()}`
+                  : '#000000',
+                tile: matdef ? matdef.tile : 0,
+              })
+            }
 
             x++
             if (x >= BLOCK_WIDTH) {
@@ -179,10 +190,15 @@ export class ChunkCache {
       )
 
       console.log('voxels', objects)
-      const geometry = buildGeometry(objects, 16)
+      if (!objects.length) {
+        return
+      }
+      const [texture, textureRows, voxels] = await buildTexture(objects)
+      console.log('texturerows', textureRows)
+      const geometry = buildGeometry(voxels, textureRows)
       chunk.stage = ChunkStage.CACHED
       chunk.cache = {
-        texture: undefined as any,
+        texture: texture,
         geometry,
       }
       this.finishLoading()
@@ -200,6 +216,7 @@ export class ChunkCache {
       chunk.mesh = mesh
       chunk.resources = resources
       chunk.stage = ChunkStage.RENDERING
+      await new Promise((resolve, reject) => setTimeout(resolve, 50))
       this.finishLoading()
     }
   }

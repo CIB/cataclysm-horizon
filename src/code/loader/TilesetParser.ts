@@ -10,7 +10,7 @@ import {
 export type ImageBuffer = HTMLImageElement
 export type SpriteMap = { [key: string]: string }
 
-class SpriteDrawer {
+export class SpriteDrawer {
   private context: CanvasRenderingContext2D
   private canvas: HTMLCanvasElement
 
@@ -25,7 +25,10 @@ class SpriteDrawer {
     this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D
   }
 
-  drawIndex(sprite: number): void {
+  drawIndex(sprite: number, color: string): void {
+    this.context.globalCompositeOperation = 'source-over'
+    this.context.fillStyle = 'black'
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
     const spritesPerRow = this.spritesheet.width / this.spriteWidth
     const row = _.floor(sprite / spritesPerRow)
     const column = sprite % spritesPerRow
@@ -40,6 +43,9 @@ class SpriteDrawer {
       this.spriteWidth,
       this.spriteHeight
     )
+    this.context.globalCompositeOperation = 'multiply'
+    this.context.fillStyle = color
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
   clear(): void {

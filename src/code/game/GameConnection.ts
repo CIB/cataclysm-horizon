@@ -219,15 +219,7 @@ let main = async () => {
     undefined
   )
   console.log('dfVersion', dfVersion.value)
-  const blockRequest = {
-    blocksNeeded: 100,
-    minX: 5,
-    maxX: 6,
-    minY: 5,
-    maxY: 6,
-    minZ: 158,
-    maxZ: 159,
-  }
+
   const resetHashReply = await callRPC<void, void>('ResetMapHashes', undefined)
   console.log('reset hash', resetHashReply)
   const materialListReply = await callRPC<
@@ -240,19 +232,35 @@ let main = async () => {
     undefined
   )
   console.log('tiletype list', tiletypeListReply)
-  const blockReply = await callRPC('GetBlockList', blockRequest)
-  MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
+  for (let z = 45 - 1; z >= 0; z--) {
+    const blockRequest = {
+      minX: 0,
+      maxX: 10,
+      minY: 0,
+      maxY: 10,
+      minZ: 120 + z,
+      maxZ: 120 + 1 + z,
+    }
+    const blockReply = await callRPC('GetBlockList', blockRequest)
+    MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
+    await callRPC<void, void>('ResetMapHashes', undefined)
+  }
   MAP_SYNCHRONIZER.addMaterialDefinitions(materialListReply.materialList)
-  console.log('block reply', blockReply)
 
-  chunkCache.loadChunk(chunkRenderer, 1, 1, 158)
+  for (let x = -4; x < 8; x++) {
+    for (let y = -4; y < 8; y++) {
+      for (let z = 0; z < 50; z++) {
+        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 120 + z)
+      }
+    }
+  }
 
   const geometry = new BoxBufferGeometry(1, 1, 1)
   const material = new MeshBasicMaterial({ color: 0xffff00 })
   const mesh = new Mesh(geometry, material)
   mesh.position.x = 80
   mesh.position.y = -80
-  mesh.position.z = 317
+  mesh.position.z = 128
 
   chunkRenderer.addMesh(mesh)
 }

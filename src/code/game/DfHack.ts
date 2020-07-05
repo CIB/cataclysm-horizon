@@ -20,6 +20,11 @@ export interface MaterialDefinition {
   matPair: MatPair
   name: string
   tile: number
+  stateColor: {
+    blue: number
+    green: number
+    red: number
+  }
 }
 
 export interface TileType {

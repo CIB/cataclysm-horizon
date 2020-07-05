@@ -127,10 +127,10 @@ export class ChunkRenderer {
   public teleport(x: number, y: number) {
     this.controls.target.x = x
     this.controls.target.y = -y
-    this.controls.target.z = 316
+    this.controls.target.z = 158
     this.camera.position.x = x
     this.camera.position.y = -y
-    this.camera.position.z = 320
+    this.camera.position.z = 165
     this.requestRenderIfNotRequested()
   }
 

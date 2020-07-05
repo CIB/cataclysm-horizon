@@ -65,7 +65,7 @@ export async function buildMesh(
   const loader = new THREE.TextureLoader()
   const texture = await new Promise<Texture>((resolve, reject) =>
     loader.load(
-      require('./../../../public/curses_square_16x16.png'),
+      textureImage,
       image => resolve(image),
       err => reject(err)
     )
@@ -97,7 +97,17 @@ export async function buildMesh(
   )
   geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, uvNumComponents))
   geometry.setIndex(indices)
-  return [new THREE.Mesh(geometry, material), [material, texture, geometry]]
+
+  const wireFrameGeometry = new THREE.EdgesGeometry(geometry) // or WireframeGeometry
+  const wireFrameMaterial = new THREE.LineBasicMaterial({
+    color: 0x00000,
+    linewidth: 2,
+  })
+  const wireframe = new THREE.LineSegments(wireFrameGeometry, wireFrameMaterial)
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.add(wireframe)
+
+  return [mesh, [material, texture, geometry]]
 }
 
 const faces = [

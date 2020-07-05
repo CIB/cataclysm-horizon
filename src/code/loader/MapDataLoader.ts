@@ -2,6 +2,16 @@ import * as _ from 'lodash'
 import { SpriteMap } from './TilesetParser'
 import { voxelTileset } from './VoxelTileset'
 
+export interface VoxelBase {
+  x: number
+  y: number
+  z: number
+  height: number
+  tile: number
+  color: string
+  cube: boolean
+}
+
 export interface Voxel {
   x: number
   y: number

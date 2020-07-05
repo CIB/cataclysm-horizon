@@ -1,14 +1,24 @@
 <template>
-  <div id="app" v-on:keyup.f="toggleUI" v-on:keyup.page-up="goUp" v-on:keyup.page-down="goDown">
+  <div
+    id="app"
+    v-on:keyup.f="toggleUI"
+    v-on:keyup.page-up="goUp"
+    v-on:keyup.page-down="goDown"
+  >
     <div id="top-overlay" v-if="!showFileLoader && showUI">
-      <div v-if="minimizeUI" @click="toggleMinimizeUI" class="maximize-ui-button">+</div>
+      <div
+        v-if="minimizeUI"
+        @click="toggleMinimizeUI"
+        class="maximize-ui-button"
+      >
+        +
+      </div>
       <div v-if="!minimizeUI" class="top-overlay-expanded">
         <div class="top-line">
           <div class="legend">
             <div>
               Keyboard
-              <b>f</b> to show/hide,
-              <b>F11</b> to toggle fullscreen
+              <b>f</b> to show/hide, <b>F11</b> to toggle fullscreen
             </div>
             <div>Arrow keys to move, left mouse button to rotate</div>
           </div>
@@ -20,20 +30,22 @@
         <table>
           <tr>
             <td align="left">Triangles:</td>
-            <td align="right">{{triangles}}</td>
+            <td align="right">{{ triangles }}</td>
           </tr>
           <tr>
             <td align="left">FPS:</td>
-            <td align="right">{{fps}}</td>
+            <td align="right">{{ fps }}</td>
           </tr>
         </table>
+
         <span class="space-between"></span>
         <progress
           v-show="progressMax > 0 && progressCurrent < progressMax"
           id="progressbar"
           :value="progressCurrent"
           :max="progressMax"
-        >32</progress>
+          >32</progress
+        >
       </div>
     </div>
 

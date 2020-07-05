@@ -1,5 +1,6 @@
 import { Vector3 } from 'three'
 import { MapBlock, BlockList, MaterialDefinition, MatPair } from './DfHack'
+import { keys, pick } from 'lodash'
 
 export const BLOCK_WIDTH = 16
 export const BLOCK_DEPTH = 16
@@ -15,11 +16,11 @@ export function localToBlock(localPos: Vector3): Vector3 {
 
 /** Keep a copy of the DF local map. */
 export class MapSynchronizer {
-  private blocks: { [position: string]: MapBlock } = {}
+  private blocks: { [z: number]: { [position: string]: MapBlock } } = {}
   private materials: { [key: string]: MaterialDefinition } = {}
 
   private toKey(p: Vector3): string {
-    return `${p.x}:${p.y}:${p.z}`
+    return `${p.x}:${p.y}`
   }
 
   private toMaterialKey(m: MatPair) {
@@ -27,12 +28,26 @@ export class MapSynchronizer {
   }
 
   public setBlock(p: Vector3, block: MapBlock): void {
-    this.blocks[this.toKey(p)] = block
+    if (!this.blocks[p.z]) {
+      this.blocks[p.z] = {}
+    }
+    const amount = keys(this.blocks[p.z]).length
+    this.blocks[p.z][this.toKey(p)] = pick(block, [
+      'mapX',
+      'mapY',
+      'mapZ',
+      'baseMaterials',
+    ])
+    if (amount + 1 !== keys(this.blocks[p.z]).length) {
+      console.log('no increase after insert', p)
+    }
   }
 
-  public getBlock(p: Vector3): MapBlock {
-    console.log('p', p, this.blocks)
-    return this.blocks[this.toKey(p)]
+  public getBlock(p: Vector3): MapBlock | null {
+    if (!this.blocks[p.z]) {
+      return null
+    }
+    return this.blocks[p.z][this.toKey(p)]
   }
 
   public addBlockList(blockList: BlockList) {
@@ -42,7 +57,6 @@ export class MapSynchronizer {
         block
       )
     }
-    console.log('blocks', this.blocks)
   }
 
   public addMaterialDefinitions(materialDefinitions: MaterialDefinition[]) {
