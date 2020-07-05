@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import * as _ from 'lodash'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { chunkCache } from '../ChunkCache'
+import { Object3D } from 'three'
 
 export interface RenderInfo {
   triangles: number
@@ -48,11 +49,15 @@ export class ChunkRenderer {
       const color = 0xffffff
       const intensity = 1
       const light = new THREE.DirectionalLight(color, intensity)
-      light.position.set(x, y, z)
+      const targetObject = new Object3D()
+      targetObject.position.set(x, y, z)
+      // light.position.set(x, y, z)
       scene.add(light)
     }
-    addLight(-1, 2, 4)
-    addLight(1, -1, -2)
+    //addLight(0, 0, -400)
+    // addLight(1, -1, -2)
+    const light = new THREE.AmbientLight(0xffffff, 1)
+    scene.add(light)
 
     this.render()
 

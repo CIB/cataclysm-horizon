@@ -2,7 +2,7 @@ import { createConnection } from 'net'
 import { Struct } from 'struct'
 import { load, Root, Message, Type } from 'protobufjs'
 import { MAP_SYNCHRONIZER } from './MapSynchronizer'
-import { BlockList } from './DfHack'
+import { BlockList, MaterialDefinition } from './DfHack'
 import { chunkCache } from '../ChunkCache'
 import { chunkRenderer } from '../renderer/ChunkRenderer'
 import { BoxBufferGeometry, MeshBasicMaterial, Mesh } from 'three'
@@ -108,6 +108,7 @@ let main = async () => {
   const MaterialList = remoteFortressReader.lookupType('MaterialList')
   const BlockRequest = remoteFortressReader.lookupType('BlockRequest')
   const BlockList = remoteFortressReader.lookupType('BlockList')
+  const TiletypeList = remoteFortressReader.lookupType('TiletypeList')
 
   interface RPCDefinition {
     assignedId: number | undefined
@@ -201,7 +202,18 @@ let main = async () => {
     EmptyMessage,
     EmptyMessage
   )
-
+  await registerRPC(
+    'GetMaterialList',
+    'RemoteFortressReader',
+    EmptyMessage,
+    MaterialList
+  )
+  await registerRPC(
+    'GetTiletypeList',
+    'RemoteFortressReader',
+    EmptyMessage,
+    TiletypeList
+  )
   const dfVersion = await callRPC<void, { value: string }>(
     'GetDFVersion',
     undefined
@@ -218,8 +230,19 @@ let main = async () => {
   }
   const resetHashReply = await callRPC<void, void>('ResetMapHashes', undefined)
   console.log('reset hash', resetHashReply)
+  const materialListReply = await callRPC<
+    void,
+    { materialList: MaterialDefinition[] }
+  >('GetMaterialList', undefined)
+  console.log('material list', materialListReply)
+  const tiletypeListReply = await callRPC<void, void>(
+    'GetTiletypeList',
+    undefined
+  )
+  console.log('tiletype list', tiletypeListReply)
   const blockReply = await callRPC('GetBlockList', blockRequest)
   MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
+  MAP_SYNCHRONIZER.addMaterialDefinitions(materialListReply.materialList)
   console.log('block reply', blockReply)
 
   chunkCache.loadChunk(chunkRenderer, 1, 1, 158)

@@ -131,7 +131,9 @@ export class ChunkCache {
       }
       let blocks: MapBlock[] = []
       for (const coordinate of mapCoordinates) {
-        const block = MAP_SYNCHRONIZER.getBlock(new Vector3(coordinate.x, coordinate.y, z))
+        const block = MAP_SYNCHRONIZER.getBlock(
+          new Vector3(coordinate.x, coordinate.y, z)
+        )
         if (block) {
           blocks.push(block)
         }
@@ -151,30 +153,33 @@ export class ChunkCache {
       // }
 
       console.log('blocks', blocks)
-      const objects = flatten(blocks.map(block => {
-        let x = 0, y = 0
-        const voxels: Voxel[] = []
-        for (let mat of block.baseMaterials) {
-          voxels.push({
-            cube: true,
-            height: 1,
-            x: block.mapX + x,
-            y: block.mapY + y,
-            z: block.mapZ + z,
-            textureIndex: 0
-          })
+      const objects = flatten(
+        blocks.map(block => {
+          let x = 0,
+            y = 0
+          const voxels: Voxel[] = []
+          for (let mat of block.baseMaterials) {
+            voxels.push({
+              cube: true,
+              height: 1,
+              x: block.mapX + x,
+              y: block.mapY + y,
+              z: block.mapZ + z,
+              textureIndex: MAP_SYNCHRONIZER.getMaterial(mat).tile,
+            })
 
-          x++
-          if (x >= BLOCK_WIDTH) {
-            x = 0
-            y++
+            x++
+            if (x >= BLOCK_WIDTH) {
+              x = 0
+              y++
+            }
           }
-        }
-        return voxels
-      }))
+          return voxels
+        })
+      )
 
       console.log('voxels', objects)
-      const geometry = buildGeometry(objects, 1)
+      const geometry = buildGeometry(objects, 16)
       chunk.stage = ChunkStage.CACHED
       chunk.cache = {
         texture: undefined as any,

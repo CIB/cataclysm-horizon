@@ -30,15 +30,15 @@ export function buildGeometry(
     const z = mesh.z
 
     const uvVoxel = mesh.textureIndex
-    const uvRow = _.floor(uvVoxel / 1)
-    const uvCol = uvVoxel % 1
+    const uvRow = _.floor(uvVoxel / 16)
+    const uvCol = uvVoxel % 16
     const useFaces = mesh.cube ? faces : [faces[2]]
     for (const { dir, corners } of useFaces) {
       const ndx = positions.length / 3
       for (const { pos, uv } of corners) {
         positions.push(pos[0] + x, pos[1] - y, pos[2] * mesh.height + z)
         normals.push(...dir)
-        uvs.push((uvCol + uv[0]) / 1, 1 - (uvRow + uv[1]) / textureRows)
+        uvs.push((uvCol + uv[0]) / 16, 1 - (uvRow + uv[1]) / textureRows)
       }
       indices.push(ndx, ndx + 1, ndx + 2, ndx + 2, ndx + 1, ndx + 3)
     }
@@ -65,7 +65,7 @@ export async function buildMesh(
   const loader = new THREE.TextureLoader()
   const texture = await new Promise<Texture>((resolve, reject) =>
     loader.load(
-      require('./../../../public/default_grass.png'),
+      require('./../../../public/curses_square_16x16.png'),
       image => resolve(image),
       err => reject(err)
     )
@@ -76,7 +76,6 @@ export async function buildMesh(
 
   const geometry = new THREE.BufferGeometry()
   const material = new THREE.MeshLambertMaterial({
-    color: 0xff0000,
     flatShading: true,
     map: texture,
     side: THREE.DoubleSide,
