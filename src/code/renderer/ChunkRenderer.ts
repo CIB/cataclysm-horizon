@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import * as _ from 'lodash'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { chunkCache } from '../ChunkCache'
 
 export interface RenderInfo {
   triangles: number
@@ -97,8 +98,12 @@ export class ChunkRenderer {
     }
   }
 
-  public getPosition(): { x: number; y: number, z: number } {
-    return { x: this.controls.target.x, y: -this.controls.target.y, z: this.controls.target.z }
+  public getPosition(): { x: number; y: number; z: number } {
+    return {
+      x: this.controls.target.x,
+      y: -this.controls.target.y,
+      z: this.controls.target.z,
+    }
   }
 
   public setPosition(x: number, y: number, z: number): void {
@@ -109,18 +114,18 @@ export class ChunkRenderer {
   }
 
   public moveZ(z: number) {
-    this.controls.target.z += z;
-    this.camera.position.z += z;
+    this.controls.target.z += z
+    this.camera.position.z += z
     this.requestRenderIfNotRequested()
   }
 
   public teleport(x: number, y: number) {
     this.controls.target.x = x
     this.controls.target.y = -y
-    this.controls.target.z = 0
+    this.controls.target.z = 316
     this.camera.position.x = x
     this.camera.position.y = -y
-    this.camera.position.z = 10
+    this.camera.position.z = 320
     this.requestRenderIfNotRequested()
   }
 

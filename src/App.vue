@@ -66,7 +66,7 @@ import * as _ from 'lodash'
   },
 })
 export default class App extends Vue {
-  private showFileLoader = true
+  private showFileLoader = false
   private showUI = true
   private minimizeUI = false
   private file: string = ''
@@ -75,6 +75,10 @@ export default class App extends Vue {
   private fps: number = 0
   private triangles: number = 0
   private dataReady: boolean = false
+
+  mounted() {
+    this.startRendering('normal', false)
+  }
 
   async startRendering(preset: string, cache: boolean) {
     chunkCache.onUpdateLoading((loading: number, doneLoading: number) => {

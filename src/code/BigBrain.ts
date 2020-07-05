@@ -84,7 +84,7 @@ export class BigBrain {
 
     for (let x = beginX; x <= endX; x++) {
       for (let y = beginY; y <= endY; y++) {
-        chunkCache.loadChunk(renderer, x, y)
+        chunkCache.loadChunk(renderer, x, y, 158)
       }
     }
 
@@ -116,29 +116,11 @@ export class BigBrain {
     geometryCacheSize = chosenPreset.geometryCacheSize
     cacheEnabled = cache
 
-    const { x: startingX, y: startingY } = await mapFiles.getStartingPosition()
+    const { x: startingX, y: startingY } = { x: 80, y: 80 }
     await chunkRenderer.load()
     chunkRenderer.teleport(startingX, startingY)
-    await this.updateChunks(chunkRenderer, startingX, startingY)
-
-    let lastUpdateX: number = startingX
-    let lastUpdateY: number = startingY
-    let lastUpdateTime: number = new Date().getTime()
 
     chunkRenderer.onTick(async (renderer: ChunkRenderer) => {
-      const position = renderer.getPosition()
-      if (
-        Math.abs(lastUpdateX - position.x) +
-          Math.abs(lastUpdateY - position.y) >=
-          48 &&
-        new Date().getTime() - lastUpdateTime > 100
-      ) {
-        this.updateChunks(renderer, position.x, position.y)
-        lastUpdateX = position.x
-        lastUpdateY = position.y
-        lastUpdateTime = new Date().getTime()
-      }
-
       if (this.updateInfo) this.updateInfo(renderer.getInfo())
     })
   }
@@ -146,7 +128,7 @@ export class BigBrain {
   public goUp() {
     chunkRenderer.moveZ(+1)
   }
-  
+
   public goDown() {
     chunkRenderer.moveZ(-1)
   }

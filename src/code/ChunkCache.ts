@@ -9,6 +9,11 @@ import { ChunkRenderer } from './renderer/ChunkRenderer'
 import { chunkMultiplier, cacheEnabled } from './BigBrain'
 import { mapFiles } from './loader/MapFiles'
 import * as _ from 'lodash'
+import { MAP_SYNCHRONIZER, BLOCK_WIDTH } from './game/MapSynchronizer'
+import { Vector3 } from 'three'
+import { MapBlock } from './game/DfHack'
+import { Voxel } from './loader/MapDataLoader'
+import { flatten } from 'lodash'
 
 export enum ChunkStage {
   UNLOADED,
@@ -80,9 +85,10 @@ export class ChunkCache {
   async loadChunk(
     renderer: ChunkRenderer,
     x: number,
-    y: number
+    y: number,
+    z: number
   ): Promise<void> {
-    let chunk: Chunk = this.chunks[`${x}:${y}`]
+    let chunk: Chunk = this.chunks[`${x}:${y}:${z}`]
     if (!chunk) {
       chunk = {
         empty: false,
@@ -94,7 +100,7 @@ export class ChunkCache {
         x,
         y,
       }
-      this.chunks[`${x}:${y}`] = chunk
+      this.chunks[`${x}:${y}:${z}`] = chunk
     }
     if (chunk.empty) {
       return
@@ -123,30 +129,55 @@ export class ChunkCache {
           })
         }
       }
-      let submaps: any[] = []
+      let blocks: MapBlock[] = []
       for (const coordinate of mapCoordinates) {
-        submaps = _.concat(
-          submaps,
-          await mapFiles.loadSubmaps(coordinate.x, coordinate.y)
-        )
+        const block = MAP_SYNCHRONIZER.getBlock(new Vector3(coordinate.x, coordinate.y, z))
+        if (block) {
+          blocks.push(block)
+        }
       }
-      if (!submaps.length) {
+      if (!blocks.length) {
         this.finishLoading()
         chunk.empty = true
         return
       }
-      const { objects, texture, textureRows } = await chunkLoader.loadVoxels(
-        submaps
-      )
-      if (!objects.length) {
-        this.finishLoading()
-        chunk.empty = true
-        return
-      }
-      const geometry = buildGeometry(objects, textureRows)
+      // const { objects, texture, textureRows } = await chunkLoader.loadVoxels(
+      //   submaps
+      // )
+      // if (!objects.length) {
+      //   this.finishLoading()
+      //   chunk.empty = true
+      //   return
+      // }
+
+      console.log('blocks', blocks)
+      const objects = flatten(blocks.map(block => {
+        let x = 0, y = 0
+        const voxels: Voxel[] = []
+        for (let mat of block.baseMaterials) {
+          voxels.push({
+            cube: true,
+            height: 1,
+            x: block.mapX + x,
+            y: block.mapY + y,
+            z: block.mapZ + z,
+            textureIndex: 0
+          })
+
+          x++
+          if (x >= BLOCK_WIDTH) {
+            x = 0
+            y++
+          }
+        }
+        return voxels
+      }))
+
+      console.log('voxels', objects)
+      const geometry = buildGeometry(objects, 1)
       chunk.stage = ChunkStage.CACHED
       chunk.cache = {
-        texture,
+        texture: undefined as any,
         geometry,
       }
       this.finishLoading()
@@ -158,6 +189,7 @@ export class ChunkCache {
       if (!cacheEnabled) {
         delete chunk.cache
       }
+      console.log('geometry', geometry)
       const [mesh, resources] = await buildMesh(geometry, texture)
       renderer.addMesh(mesh)
       chunk.mesh = mesh
