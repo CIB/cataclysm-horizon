@@ -4,6 +4,10 @@ export interface MapBlock {
   mapZ: number
 
   baseMaterials: MatPair[]
+  constructionItems: MatPair[]
+  layerMaterials: MatPair[]
+  materials: MatPair[]
+  tiles: number[]
 }
 
 export interface BlockList {

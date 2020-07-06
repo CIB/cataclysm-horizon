@@ -1,4 +1,3 @@
-import { chunkLoader } from './loader/ChunkLoader'
 import {
   ThreeResource,
   buildMesh,
@@ -7,14 +6,13 @@ import {
 } from './renderer/MeshBuilder'
 import { ChunkRenderer } from './renderer/ChunkRenderer'
 import { chunkMultiplier, cacheEnabled } from './BigBrain'
-import { mapFiles } from './loader/MapFiles'
 import * as _ from 'lodash'
-import { MAP_SYNCHRONIZER, BLOCK_WIDTH } from './game/MapSynchronizer'
+import { MAP_SYNCHRONIZER } from './game/MapSynchronizer'
 import * as THREE from 'three'
 import { MapBlock } from './game/DfHack'
-import { Voxel, VoxelBase } from './loader/MapDataLoader'
 import { flatten } from 'lodash'
 import { buildTexture } from './loader/TextureBuilder'
+import { loadVoxelsFromBlock } from './loader/VoxelLoader'
 
 export enum ChunkStage {
   UNLOADED,
@@ -154,40 +152,7 @@ export class ChunkCache {
       //   return
       // }
 
-      const objects = flatten(
-        blocks.map(block => {
-          let x = 0,
-            y = 0
-          const voxels: VoxelBase[] = []
-          for (let mat of block.baseMaterials) {
-            const matdef = MAP_SYNCHRONIZER.getMaterial(mat)
-            if (matdef) {
-              voxels.push({
-                cube: true,
-                height: 1,
-                x: block.mapX + x,
-                y: block.mapY + y,
-                z: block.mapZ,
-                color: matdef.stateColor
-                  ? `#${new THREE.Color(
-                      matdef.stateColor.red,
-                      matdef.stateColor.red,
-                      matdef.stateColor.green
-                    ).getHexString()}`
-                  : '#000000',
-                tile: matdef ? matdef.tile : 0,
-              })
-            }
-
-            x++
-            if (x >= BLOCK_WIDTH) {
-              x = 0
-              y++
-            }
-          }
-          return voxels
-        })
-      )
+      const objects = flatten(blocks.map(block => loadVoxelsFromBlock(block)))
 
       console.log('voxels', objects)
       if (!objects.length) {
