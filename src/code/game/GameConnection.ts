@@ -232,7 +232,7 @@ let main = async () => {
     undefined
   )
   console.log('tiletype list', tiletypeListReply)
-  for (let z = 1 - 1; z >= 0; z--) {
+  for (let z = 55 - 1; z >= 0; z--) {
     const blockRequest = {
       minX: 0,
       maxX: 14,
@@ -243,7 +243,6 @@ let main = async () => {
     }
     const blockReply = await callRPC('GetBlockList', blockRequest)
     MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
-    console.log('blocks', blockReply)
   }
   MAP_SYNCHRONIZER.addMaterialDefinitions(materialListReply.materialList)
 

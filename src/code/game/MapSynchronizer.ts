@@ -37,6 +37,11 @@ export class MapSynchronizer {
       'mapY',
       'mapZ',
       'baseMaterials',
+      'constructionItems',
+      'materials',
+      'layerMaterials',
+      'tiles',
+      'hidden',
     ])
     if (amount + 1 !== keys(this.blocks[p.z]).length) {
       console.log('no increase after insert', p)

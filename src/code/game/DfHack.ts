@@ -8,6 +8,7 @@ export interface MapBlock {
   layerMaterials: MatPair[]
   materials: MatPair[]
   tiles: number[]
+  hidden: boolean[]
 }
 
 export interface BlockList {
