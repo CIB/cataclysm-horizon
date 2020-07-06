@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { Texture } from 'three'
-import { Voxel } from '../loader/MapDataLoader'
+import { PreparedVoxel } from '../loader/VoxelLoader'
 
 import * as _ from 'lodash'
 
@@ -16,7 +16,7 @@ export interface GeometryData {
 }
 
 export function buildGeometry(
-  meshes: Voxel[],
+  meshes: PreparedVoxel[],
   textureRows: number
 ): GeometryData {
   const positions: number[] = []

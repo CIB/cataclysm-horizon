@@ -8,7 +8,9 @@
           @click="$emit('start', preset, cache)"
           :disabled="!tilesetLoaded || mapFilesLoaded <= 0"
           class="start-button"
-        >Start</button>
+        >
+          Start
+        </button>
         <select
           class="preset-select"
           v-model="preset"
@@ -24,7 +26,8 @@
         <label
           class="cache-label"
           title="Keeps part of the map in memory, even when not currently rendered. Significantly increases memory usage."
-        >Cache</label>
+          >Cache</label
+        >
         <input
           class="cache-checkbox"
           type="checkbox"
@@ -34,41 +37,49 @@
       </span>
       <span class="space"></span>
       <span>Controls:</span>
-      <span>
-        <b>F11</b> to toggle fullscreen
-      </span>
+      <span> <b>F11</b> to toggle fullscreen </span>
       <span>Left mouse button to rotate the view</span>
       <span>Arrow keys or right mouse button to move</span>
-      <span>
-        <b>f</b> to toggle the rendering info
-      </span>
+      <span> <b>f</b> to toggle the rendering info </span>
     </div>
     <div class="tile">
       <span class="import-row">
-        <button @click="importTileset" :disabled="tilesetLoading">Import Tileset</button>
-        <progress class="progressbar" :value="tilesetProgress" max="100"></progress>
+        <button @click="importTileset" :disabled="tilesetLoading">
+          Import Tileset
+        </button>
+        <progress
+          class="progressbar"
+          :value="tilesetProgress"
+          max="100"
+        ></progress>
       </span>
       <template v-if="!tilesetLoading">
         <span>Select the root directory of a tileset.</span>
         <div class="info">Usually located under Cataclysm/gfx/Tileset</div>
       </template>
       <template v-else>
-        <span>Tileset: {{tilesetName}}</span>
-        <span>Entries: {{tilesetEntries}}</span>
+        <span>Tileset: {{ tilesetName }}</span>
+        <span>Entries: {{ tilesetEntries }}</span>
       </template>
     </div>
 
     <div class="tile">
       <span class="import-row">
-        <button @click="importMapData" :disabled="mapDataLoading">Import Map Files</button>
-        <progress class="progressbar" :value="mapDataProgress" max="100"></progress>
+        <button @click="importMapData" :disabled="mapDataLoading">
+          Import Map Files
+        </button>
+        <progress
+          class="progressbar"
+          :value="mapDataProgress"
+          max="100"
+        ></progress>
       </span>
       <template v-if="mapDataProgress === 0">
         <span>Select the root directory of your map files.</span>
         <div class="info">Usually located under Cataclysm/save/World/maps</div>
       </template>
       <template v-else>
-        <span>Map Files: {{mapFilesLoaded}}</span>
+        <span>Map Files: {{ mapFilesLoaded }}</span>
       </template>
     </div>
   </div>
@@ -78,8 +89,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { chunkRenderer } from './../code/renderer/ChunkRenderer'
 
-import { tilesetParser } from '../code/loader/TilesetParser'
-import { mapFiles } from '../code/loader/MapFiles'
 import { bigBrain } from '../code/BigBrain'
 import { chunkCache } from '../code/ChunkCache'
 import { RenderInfo } from '../code/renderer/ChunkRenderer'
@@ -118,11 +127,6 @@ export default class LoadScreen extends Vue {
     const tilesetDirectory = await selectDirectory()
     if (!tilesetDirectory) return
     this.tilesetLoading = true
-    await tilesetParser.loadTileset(tilesetDirectory, progress => {
-      this.tilesetProgress = _.round(100 * progress)
-      this.tilesetName = tilesetParser.tilesetName
-      this.tilesetEntries = tilesetParser.tilesetEntries
-    })
     this.tilesetLoaded = true
   }
 
@@ -134,8 +138,6 @@ export default class LoadScreen extends Vue {
     )
     this.mapDataLoading = false
     if (!files) return
-    await mapFiles.uploadFiles(files)
-    this.mapFilesLoaded = mapFiles.getFilesCount()
   }
 }
 </script>
