@@ -232,14 +232,14 @@ let main = async () => {
     undefined
   )
   console.log('tiletype list', tiletypeListReply)
-  for (let z = 45 - 1; z >= 0; z--) {
+  for (let z = 55 - 1; z >= 0; z--) {
     const blockRequest = {
       minX: 0,
-      maxX: 10,
+      maxX: 14,
       minY: 0,
-      maxY: 10,
-      minZ: 120 + z,
-      maxZ: 120 + 1 + z,
+      maxY: 14,
+      minZ: 100 + z,
+      maxZ: 100 + 1 + z,
     }
     const blockReply = await callRPC('GetBlockList', blockRequest)
     MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
@@ -247,22 +247,22 @@ let main = async () => {
   }
   MAP_SYNCHRONIZER.addMaterialDefinitions(materialListReply.materialList)
 
-  for (let x = -4; x < 8; x++) {
-    for (let y = -4; y < 8; y++) {
-      for (let z = 0; z < 50; z++) {
-        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 120 + z)
-      }
-    }
-  }
-
   const geometry = new BoxBufferGeometry(1, 1, 1)
   const material = new MeshBasicMaterial({ color: 0xffff00 })
   const mesh = new Mesh(geometry, material)
   mesh.position.x = 80
   mesh.position.y = -80
-  mesh.position.z = 128
+  mesh.position.z = 140
 
   chunkRenderer.addMesh(mesh)
+
+  for (let x = -4; x < 14; x++) {
+    for (let y = -4; y < 14; y++) {
+      for (let z = 0; z < 55; z++) {
+        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 100 + z)
+      }
+    }
+  }
 }
 
 main()
