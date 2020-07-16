@@ -80,8 +80,8 @@ export async function buildMesh(
     map: texture,
     side: THREE.DoubleSide,
     alphaTest: 0,
-    opacity: 1,
-    transparent: false,
+    opacity: 0.8,
+    transparent: true,
   })
 
   const positionNumComponents = 3
@@ -101,7 +101,9 @@ export async function buildMesh(
   const wireFrameGeometry = new THREE.EdgesGeometry(geometry) // or WireframeGeometry
   const wireFrameMaterial = new THREE.LineBasicMaterial({
     color: 0x00000,
-    linewidth: 2,
+    linewidth: 20,
+    transparent: true,
+    opacity: 0.1,
   })
   const wireframe = new THREE.LineSegments(wireFrameGeometry, wireFrameMaterial)
   const mesh = new THREE.Mesh(geometry, material)

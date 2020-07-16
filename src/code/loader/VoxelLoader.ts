@@ -15,7 +15,11 @@ export interface Voxel {
   height: number
   tile: number
   color: string
+  baseColor: string
   cube: boolean
+  material: MaterialDefinition
+  baseMaterial: MaterialDefinition
+  transparency: number
 }
 
 export interface PreparedVoxel {
@@ -25,14 +29,15 @@ export interface PreparedVoxel {
   height: number
   textureIndex: number
   cube: boolean
+  baseVoxel: Voxel
 }
 
 function colorFromMaterial(matdef: MaterialDefinition) {
   return matdef.stateColor
     ? `#${new THREE.Color(
-        matdef.stateColor.red,
-        matdef.stateColor.blue,
-        matdef.stateColor.green
+        matdef.stateColor.red / 255,
+        matdef.stateColor.green / 255,
+        matdef.stateColor.blue / 255
       ).getHexString()}`
     : '#000000'
 }
@@ -46,7 +51,7 @@ function createVoxel(p: THREE.Vector3, tile: number, color: string): Voxel {
     z: p.z,
     color: color,
     tile: tile,
-  }
+  } as Voxel
 }
 
 export function loadVoxelsFromBlock(block: MapBlock): Voxel[] {
@@ -59,19 +64,38 @@ export function loadVoxelsFromBlock(block: MapBlock): Voxel[] {
       if (block.hidden[index]) {
         continue
       }
-      const matdef = MAP_SYNCHRONIZER.getMaterial(block.materials[index])
-      if (!matdef) {
+
+      let matdef = MAP_SYNCHRONIZER.getMaterial(block.materials[index])
+      if (block.constructionItems[index].matIndex !== -1) {
+        matdef = MAP_SYNCHRONIZER.getMaterial(block.constructionItems[index])
+      }
+      const veinMatdef = MAP_SYNCHRONIZER.getMaterial(
+        block.veinMaterials[index]
+      )
+      let transparency = 0
+      if (!matdef || !veinMatdef) {
         continue
       }
-      const tile = matdef.tile
-      const color = colorFromMaterial(matdef)
-      voxels.push(
-        createVoxel(
+      let tile = matdef.tile
+      let color = colorFromMaterial(matdef)
+      if (matdef.id.startsWith('PLANT') && matdef.id.endsWith('STRUCTURAL')) {
+        tile = block.tiles[index]
+        color = '#ffffff'
+        transparency = 0.9
+      }
+      // const tile = 219
+      const baseColor = colorFromMaterial(veinMatdef)
+      voxels.push({
+        ...createVoxel(
           new THREE.Vector3(block.mapX + x, block.mapY + y, block.mapZ),
           tile,
           color
-        )
-      )
+        ),
+        material: matdef,
+        baseColor,
+        baseMaterial: MAP_SYNCHRONIZER.getMaterial(block.baseMaterials[index]),
+        transparency,
+      })
     }
   }
   return voxels

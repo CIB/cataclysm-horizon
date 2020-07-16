@@ -12,7 +12,7 @@ import * as THREE from 'three'
 import { MapBlock } from './game/DfHack'
 import { flatten } from 'lodash'
 import { buildTexture } from './loader/TextureBuilder'
-import { loadVoxelsFromBlock } from './loader/VoxelLoader'
+import { loadVoxelsFromBlock, PreparedVoxel } from './loader/VoxelLoader'
 
 export enum ChunkStage {
   UNLOADED,
@@ -33,6 +33,7 @@ function isLoading(stage: ChunkStage) {
 export interface ChunkRenderData {
   geometry: GeometryData
   texture: string
+  voxels: PreparedVoxel[]
 }
 
 export interface Chunk {
@@ -45,6 +46,7 @@ export interface Chunk {
   cache?: ChunkRenderData
   /** A reference to the three.js mesh used to represent this chunk. */
   mesh?: THREE.Mesh
+  meshVoxels?: PreparedVoxel[]
   /** A list of all three.js resources that have to be disposed
    *  when unloading this chunk from the renderer. */
   resources: ThreeResource[]
@@ -165,20 +167,22 @@ export class ChunkCache {
       chunk.cache = {
         texture: texture,
         geometry,
+        voxels,
       }
       this.finishLoading()
     }
     if (chunk.requested && chunk.stage === ChunkStage.CACHED) {
       this.startLoading()
       chunk.stage = ChunkStage.PROCESSING
-      const { geometry, texture } = chunk.cache!
+      const { geometry, texture, voxels } = chunk.cache!
       if (!cacheEnabled) {
         delete chunk.cache
       }
       console.log('geometry', geometry)
       const [mesh, resources] = await buildMesh(geometry, texture)
-      renderer.addMesh(mesh)
+      renderer.addMesh(mesh, voxels)
       chunk.mesh = mesh
+      chunk.meshVoxels = voxels
       chunk.resources = resources
       chunk.stage = ChunkStage.RENDERING
       await new Promise((resolve, reject) => setTimeout(resolve, 50))
@@ -218,7 +222,7 @@ export class ChunkCache {
       chunk.stage = ChunkStage.UNLOADED
     }
     chunk.resources = []
-    renderer.removeMesh(mesh)
+    renderer.removeMesh(mesh, chunk.meshVoxels!)
     for (let resource of resources) {
       resource.dispose()
     }

@@ -64,7 +64,7 @@ const readData = async (bytes: number): Promise<Buffer> => {
       reject(err)
     }
     const listener = (data: Buffer) => {
-      console.log('data', chunkString(data.toString('hex'), 4))
+      // console.log('data', chunkString(data.toString('hex'), 4))
       buffer = Buffer.concat([buffer, data])
 
       if (buffer.length >= bytes) {
@@ -232,14 +232,14 @@ let main = async () => {
     undefined
   )
   console.log('tiletype list', tiletypeListReply)
-  for (let z = 55 - 1; z >= 0; z--) {
+  for (let z = 110 - 1; z >= 0; z--) {
     const blockRequest = {
       minX: 0,
       maxX: 14,
       minY: 0,
       maxY: 14,
-      minZ: 100 + z,
-      maxZ: 100 + 1 + z,
+      minZ: 40 + z,
+      maxZ: 40 + 1 + z,
     }
     const blockReply = await callRPC('GetBlockList', blockRequest)
     MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
@@ -253,12 +253,12 @@ let main = async () => {
   mesh.position.y = -80
   mesh.position.z = 140
 
-  chunkRenderer.addMesh(mesh)
+  chunkRenderer.addMesh(mesh, [])
 
-  for (let x = -4; x < 14; x++) {
-    for (let y = -4; y < 14; y++) {
-      for (let z = 0; z < 55; z++) {
-        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 100 + z)
+  for (let z = 0; z < 110; z++) {
+    for (let x = -4; x < 14; x++) {
+      for (let y = -4; y < 14; y++) {
+        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 40 + z)
       }
     }
   }

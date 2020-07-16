@@ -40,6 +40,7 @@ export class MapSynchronizer {
       'constructionItems',
       'materials',
       'layerMaterials',
+      'veinMaterials',
       'tiles',
       'hidden',
     ])

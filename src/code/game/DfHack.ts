@@ -6,6 +6,7 @@ export interface MapBlock {
   baseMaterials: MatPair[]
   constructionItems: MatPair[]
   layerMaterials: MatPair[]
+  veinMaterials: MatPair[]
   materials: MatPair[]
   tiles: number[]
   hidden: boolean[]

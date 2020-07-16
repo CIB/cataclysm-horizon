@@ -1,24 +1,14 @@
 <template>
-  <div
-    id="app"
-    v-on:keyup.f="toggleUI"
-    v-on:keyup.page-up="goUp"
-    v-on:keyup.page-down="goDown"
-  >
+  <div id="app" v-on:keyup.f="toggleUI" v-on:keyup.page-up="goUp" v-on:keyup.page-down="goDown">
     <div id="top-overlay" v-if="!showFileLoader && showUI">
-      <div
-        v-if="minimizeUI"
-        @click="toggleMinimizeUI"
-        class="maximize-ui-button"
-      >
-        +
-      </div>
+      <div v-if="minimizeUI" @click="toggleMinimizeUI" class="maximize-ui-button">+</div>
       <div v-if="!minimizeUI" class="top-overlay-expanded">
         <div class="top-line">
           <div class="legend">
             <div>
               Keyboard
-              <b>f</b> to show/hide, <b>F11</b> to toggle fullscreen
+              <b>f</b> to show/hide,
+              <b>F11</b> to toggle fullscreen
             </div>
             <div>Arrow keys to move, left mouse button to rotate</div>
           </div>
@@ -36,6 +26,9 @@
             <td align="left">FPS:</td>
             <td align="right">{{ fps }}</td>
           </tr>
+          <tr>
+            <td style="max-width: 300px;">{{ debugInfo }}</td>
+          </tr>
         </table>
 
         <span class="space-between"></span>
@@ -44,8 +37,7 @@
           id="progressbar"
           :value="progressCurrent"
           :max="progressMax"
-          >32</progress
-        >
+        >32</progress>
       </div>
     </div>
 
@@ -87,6 +79,7 @@ export default class App extends Vue {
   private fps: number = 0
   private triangles: number = 0
   private dataReady: boolean = false
+  private debugInfo: string = ''
 
   mounted() {
     this.startRendering('normal', false)
@@ -98,9 +91,10 @@ export default class App extends Vue {
       this.progressMax = loading
     })
     bigBrain.load(preset, cache)
-    bigBrain.onUpdateInfo((renderInfo: RenderInfo) => {
+    bigBrain.onUpdateInfo((renderInfo: RenderInfo, debugInfo: string) => {
       this.fps = Math.round(1000 / renderInfo.frameDuration)
       this.triangles = renderInfo.triangles
+      this.debugInfo = debugInfo
     })
     this.showFileLoader = false
   }

@@ -28,9 +28,9 @@ class SpriteDrawer {
     this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D
   }
 
-  drawIndex(sprite: number, color: string): void {
+  drawIndex(sprite: number, color: string, baseColor: string): void {
     this.context.globalCompositeOperation = 'source-over'
-    this.context.fillStyle = 'black'
+    this.context.fillStyle = baseColor
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
     const spritesPerRow = this.spritesheet.width / this.spriteWidth
     const row = _.floor(sprite / spritesPerRow)
@@ -75,7 +75,7 @@ export async function buildTexture(
     voxels,
     voxel => `${voxel.tile}:${voxel.color}`
   ).map(voxel => {
-    spriteDrawer.drawIndex(voxel.tile, voxel.color)
+    spriteDrawer.drawIndex(voxel.tile, voxel.color, voxel.baseColor)
     return {
       key: `${voxel.tile}:${voxel.color}`,
       sprite: spriteDrawer.toDataURL(),
@@ -102,6 +102,7 @@ export async function buildTexture(
 
   const resultVoxels: PreparedVoxel[] = voxels.map(voxel => ({
     ...voxel,
+    baseVoxel: voxel,
     textureIndex: keys.indexOf(`${voxel.tile}:${voxel.color}`),
   }))
   console.log('final image', canvas.toDataURL(), resultVoxels)

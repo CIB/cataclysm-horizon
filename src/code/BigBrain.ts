@@ -121,7 +121,8 @@ export class BigBrain {
     chunkRenderer.teleport(startingX, startingY)
 
     chunkRenderer.onTick(async (renderer: ChunkRenderer) => {
-      if (this.updateInfo) this.updateInfo(renderer.getInfo())
+      if (this.updateInfo)
+        this.updateInfo(renderer.getInfo(), renderer.debugInfo)
     })
   }
 
@@ -133,9 +134,9 @@ export class BigBrain {
     chunkRenderer.moveZ(-1)
   }
 
-  private updateInfo?: (info: RenderInfo) => void
+  private updateInfo?: (info: RenderInfo, debugInfo: string) => void
 
-  async onUpdateInfo(callback: (info: RenderInfo) => void) {
+  async onUpdateInfo(callback: (info: RenderInfo, debugInfo: string) => void) {
     this.updateInfo = callback
   }
 }
