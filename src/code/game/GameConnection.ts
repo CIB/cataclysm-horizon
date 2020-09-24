@@ -16,6 +16,7 @@ const HeaderStruct = new Struct<{
   RESPONSE_MAGIC: string
 }>()
   .chars('magic', 8)
+  
   .word32Sle('version')
 
 const RPCMessageHeaderStruct = new Struct<{ id: number; size: number }>()
@@ -232,14 +233,16 @@ let main = async () => {
     undefined
   )
   console.log('tiletype list', tiletypeListReply)
-  for (let z = 110 - 1; z >= 0; z--) {
+  const zStart = 160
+  const zEnd = 180
+  for (let z = zEnd - 1; z >= zStart; z--) {
     const blockRequest = {
       minX: 0,
       maxX: 14,
       minY: 0,
       maxY: 14,
-      minZ: 40 + z,
-      maxZ: 40 + 1 + z,
+      minZ: z,
+      maxZ: 1 + z,
     }
     const blockReply = await callRPC('GetBlockList', blockRequest)
     MAP_SYNCHRONIZER.addBlockList(blockReply as BlockList)
@@ -255,10 +258,10 @@ let main = async () => {
 
   chunkRenderer.addMesh(mesh, [])
 
-  for (let z = 0; z < 110; z++) {
+  for (let z = zStart; z < zEnd; z++) {
     for (let x = -4; x < 14; x++) {
       for (let y = -4; y < 14; y++) {
-        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, 40 + z)
+        await chunkCache.loadChunk(chunkRenderer, 1 + x, 1 + y, z)
       }
     }
   }
